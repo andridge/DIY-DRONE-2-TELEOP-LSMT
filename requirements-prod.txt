@@ -1,0 +1,7 @@
+# AI/ML Framework (TPU linkages)
+tflite-runtime==2.10.0
+pycoral==2.0.0
+# Computer Vision (headless for Pi)
+opencv-python-headless==4.5.5.64
+Pillow==9.0.1
+numpy==1.21.6

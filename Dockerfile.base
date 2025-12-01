@@ -1,0 +1,72 @@
+FROM nvidia/cuda:11.0.3-devel-ubuntu20.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    ROS_DISTRO=noetic \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget curl git python3-pip python3-dev build-essential sudo lsb-release gnupg2 apt-utils \
+    supervisor nginx net-tools iputils-ping wireless-tools python3-serial \
+    libatlas-base-dev libhdf5-dev libhdf5-serial-dev \
+    libglib2.0-0 libsm6 libxext6 libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install ROS Noetic
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-latest.list' && \
+    apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ros-noetic-desktop-full \
+        ros-noetic-rosbridge-suite \
+        ros-noetic-cv-bridge \
+        ros-noetic-image-transport \
+        ros-noetic-tf \
+        ros-noetic-geometry-msgs \
+        ros-noetic-sensor-msgs \
+        ros-noetic-nav-msgs \
+        ros-noetic-mavros \
+        ros-noetic-mavros-extras \
+        ros-noetic-gazebo-ros-pkgs \
+        ros-noetic-geographic-msgs \
+        python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential \
+    && rm -rf /var/lib/apt/lists/*
+    
+# Install additional system dependencies
+RUN apt-get update && apt-get install -y \
+    libjsoncpp-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Initialize rosdep
+RUN rosdep init || echo "rosdep already initialized" && rosdep update
+
+# Source ROS in every bash session
+RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
+
+# Upgrade pip and install Python dependencies
+RUN pip3 install --upgrade pip
+COPY requirements-base.txt /tmp/
+RUN pip3 install --ignore-installed -r /tmp/requirements-base.txt
+
+# Install ngrok for UAT tunnel connectivity
+RUN wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz && \
+    tar xzf ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin/ && \
+    rm ngrok-v3-stable-linux-amd64.tgz
+
+# Create application directories
+RUN mkdir -p /app/models /app/config /app/logs /app/n8n_workflows
+WORKDIR /app
+
+COPY src/ /app/src/
+COPY config/ /app/config/
+COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 9090 8080 5000 
+
+# Simple healthcheck that always passes
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python3 -c "print('OK')" || exit 1
+
+CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]

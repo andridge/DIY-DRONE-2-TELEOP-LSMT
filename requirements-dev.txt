@@ -1,0 +1,13 @@
+# AI/ML Framework (GPU linkages)
+torch==1.9.0+cu102
+torchvision==0.10.0+cu102
+torchaudio==0.9.0
+--extra-index-url https://download.pytorch.org/whl/cu102
+ultralytics==8.0.124
+onnx==1.10.2
+onnxruntime-gpu==1.10.0
+# Computer Vision
+opencv-python==4.5.5.64
+Pillow==9.0.1
+numpy==1.21.6
+gpustat==1.0.0

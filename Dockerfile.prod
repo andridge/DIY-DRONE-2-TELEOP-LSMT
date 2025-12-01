@@ -1,0 +1,10 @@
+FROM drone-ai-base:latest
+
+# Copy production supervisord configuration
+COPY supervisord-prod.conf /etc/supervisor/conf.d/supervisord-prod.conf
+
+# Override the base supervisord configuration to include prod services
+RUN echo "[include]" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "files = /etc/supervisor/conf.d/supervisord-prod.conf" >> /etc/supervisor/conf.d/supervisord.conf
+
+# The base image's CMD is already set up to run supervisord

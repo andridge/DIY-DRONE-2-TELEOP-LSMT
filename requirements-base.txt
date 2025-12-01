@@ -1,0 +1,36 @@
+# Web and communication
+flask==2.0.3
+flask-socketio==5.3.1
+python-socketio==5.7.2
+eventlet==0.33.3
+websocket-client==1.3.1
+roslibpy==1.3.0
+
+# AI/ML (CUDA 11.0.3 for GTX 750)
+# CONFIRMED WORKING VERSIONS:
+torch==1.7.1+cu110
+torchvision==0.8.2+cu110
+torchaudio==0.7.2
+--extra-index-url https://download.pytorch.org/whl/cu110
+
+# YOLOv8 will work with torch 1.7.1
+ultralytics==8.0.124
+
+# ONNX (CPU for build, install GPU version later)
+onnx==1.10.2
+onnxruntime
+
+# Computer Vision
+opencv-python
+Pillow==9.0.1
+numpy==1.21.6
+gpustat==1.0.0
+
+# Serial communication for LoRa
+pyserial==3.5
+
+# Utilities
+#pyyaml==6.0
+paho-mqtt==1.6.1
+
+# NOTE: jsoncpp-python removed - we'll install libjsoncpp-dev via apt

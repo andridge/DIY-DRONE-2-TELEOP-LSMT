@@ -1,0 +1,10 @@
+FROM drone-ai-base:latest
+
+# Copy development supervisord configuration
+COPY supervisord-dev.conf /etc/supervisor/conf.d/supervisord-dev.conf
+
+# Override the base supervisord configuration to include dev services
+RUN echo "[include]" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "files = /etc/supervisor/conf.d/supervisord-dev.conf" >> /etc/supervisor/conf.d/supervisord.conf
+
+# The base image's CMD is already set up to run supervisord
