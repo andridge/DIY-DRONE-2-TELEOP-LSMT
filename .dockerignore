@@ -1,0 +1,7 @@
+logs
+*.log
+*.pth
+__pycache__
+.git
+.vscode
+node_modules
